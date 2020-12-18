@@ -108,5 +108,5 @@ function correlated_multigraph(g1,g2;correlation="MP")
 	for edge in edges(g2)
 		add_edge!(g3, node_map[src(edge)], node_map[dst(edge)])
 	end
-	g3
+	return [g1;g3]
 end
