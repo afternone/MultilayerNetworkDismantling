@@ -5,6 +5,7 @@ using DataStructures
 using Base.Iterators
 
 export
+EMD,
 HLD,
 HLDA,
 HMD,
@@ -21,6 +22,7 @@ include("decore.jl")
 include("tree_break.jl")
 include("reverse_greedy.jl")
 include("CoreHLDA.jl")
+include("EMD.jl")
 include("HLD.jl")
 include("HLDA.jl")
 include("HMD.jl")
