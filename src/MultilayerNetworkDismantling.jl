@@ -3,8 +3,11 @@ module MultilayerNetworkDismantling
 using LightGraphs
 using DataStructures
 using Base.Iterators
+using StatsBase
 
 export
+OAS,
+LCC,
 EMD,
 HLD,
 HLDA,
@@ -22,6 +25,7 @@ include("decore.jl")
 include("tree_break.jl")
 include("reverse_greedy.jl")
 include("CoreHLDA.jl")
+include("OAS.jl")
 include("EMD.jl")
 include("HLD.jl")
 include("HLDA.jl")

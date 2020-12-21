@@ -4,6 +4,9 @@ using GraphPlot
 include("MultilayerNetworkDismantling.jl")
 
 layers = [erdos_renyi(500, 0.006) for _ in 1:2]
+##
+MultilayerNetworkDismantling.OAS(layers, 300)
+##
 
 attack_nodes_EMD = MultilayerNetworkDismantling.EMD(layers, num=300)
 attack_nodes_HLD = MultilayerNetworkDismantling.HLD(layers)
@@ -13,6 +16,16 @@ attack_nodes_HMDA = MultilayerNetworkDismantling.HMDA(layers)
 attack_nodes_HLCIA = MultilayerNetworkDismantling.HLCIA(layers, num=10000)
 attack_nodes_HMCIA = MultilayerNetworkDismantling.HMCIA(layers, num=10000)
 attack_nodes_CoreHLDA = MultilayerNetworkDismantling.CoreHLDA(layers)
+
+##
+y_EMD1 = Int[]
+presents = [fill(true, nv(layers[1])) for _ in eachindex(layers)]
+for (l,i) in attack_nodes_EMD
+    g = MultilayerNetworkDismantling.merge_layer(layers, presents)
+    push!(y_EMD1, MultilayerNetworkDismantling.LCC(g))
+    presents[l][i] = false
+end
+##
 
 y_EMD = MultilayerNetworkDismantling.recover_add_nodes(layers, attack_nodes_EMD)
 y_HLD = MultilayerNetworkDismantling.recover_add_nodes(layers, attack_nodes_HLD)

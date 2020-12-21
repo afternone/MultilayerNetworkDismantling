@@ -1,3 +1,31 @@
+function LCC(g)
+    n = nv(g)
+    Q = Queue{Int}()
+	label = zeros(Int,n)
+	cnt = zeros(Int,n)
+	maxcnt = 0
+    @inbounds for u in vertices(g)
+		label[u] != 0 && continue
+		label[u] = u
+		cnt[u] += 1
+		enqueue!(Q, u)
+		while !isempty(Q)
+			src = dequeue!(Q)
+			for vertex in all_neighbors(g, src)
+				if label[vertex] == 0
+					enqueue!(Q, vertex)
+					label[vertex] = u
+					cnt[u] += 1
+				end
+			end
+		end
+		if cnt[u] > maxcnt
+			maxcnt = cnt[u]
+		end
+    end
+    return maxcnt
+end
+
 function merge_layer(layers, presents::Array{Array{Bool,1},1})
 	g = SimpleGraph(nv(layers[1]))
 	for (layer, present) in zip(layers, presents)
