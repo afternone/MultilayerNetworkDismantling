@@ -1,14 +1,14 @@
 ## import packages
 using Plots
 using GraphPlot
+using LightGraphs
 include("MultilayerNetworkDismantling.jl")
 
 layers = [erdos_renyi(500, 0.006) for _ in 1:2]
 ##
-MultilayerNetworkDismantling.OAS(layers, 300)
+@time MultilayerNetworkDismantling.OAS(layers, 100)
 ##
 
-attack_nodes_EMD = MultilayerNetworkDismantling.EMD(layers, num=300)
 attack_nodes_HLD = MultilayerNetworkDismantling.HLD(layers)
 attack_nodes_HLDA = MultilayerNetworkDismantling.HLDA(layers)
 attack_nodes_HMD = MultilayerNetworkDismantling.HMD(layers)
@@ -26,7 +26,10 @@ for (l,i) in attack_nodes_EMD
     presents[l][i] = false
 end
 ##
-
+presents = MultilayerNetworkDismantling.attack2present(layers, attack_nodes_EMD)
+MultilayerNetworkDismantling.MLCC(layers, presents)
+g = MultilayerNetworkDismantling.merge_layer(layers, presents)
+##
 y_EMD = MultilayerNetworkDismantling.recover_add_nodes(layers, attack_nodes_EMD)
 y_HLD = MultilayerNetworkDismantling.recover_add_nodes(layers, attack_nodes_HLD)
 y_HLDA = MultilayerNetworkDismantling.recover_add_nodes(layers, attack_nodes_HLDA)

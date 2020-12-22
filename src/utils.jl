@@ -1,3 +1,78 @@
+function MLCC!(layers, presents, label = zeros(Int,nv(layers[1])), cnt = zeros(Int,nv(layers[1])))
+    n = nv(layers[1])
+    Q = Queue{Int}()
+	maxcnt = 0
+	for u in vertices(layers[1])
+		is_present = false
+		for l in eachindex(layers)
+			if presents[l][u]
+				is_present = true
+				break
+			end
+		end
+		if is_present
+			label[u] != 0 && continue
+			label[u] = u
+			cnt[u] += 1
+			enqueue!(Q,u)
+			while !isempty(Q)
+				src_node = dequeue!(Q)
+				for l in eachindex(layers)
+					if presents[l][src_node]
+						for v in all_neighbors(layers[l],src_node)
+							if presents[l][v] && label[v] == 0
+								enqueue!(Q, v)
+								label[v] = u
+								cnt[u] += 1
+							end
+						end
+					end
+				end
+			end
+			if cnt[u] > maxcnt
+				maxcnt = cnt[u]
+			end
+		end
+	end
+	for i in eachindex(label)
+		label[i] = 0
+		cnt[i] = 0
+	end
+	return maxcnt
+end
+
+function LCC(g, present)
+    n = nv(g)
+    Q = Queue{Int}()
+	label = zeros(Int,n)
+	cnt = zeros(Int,n)
+	maxcnt = 0
+    @inbounds for u in vertices(g)
+		if present[u]
+	        label[u] != 0 && continue
+	        label[u] = u
+			cnt[u] += 1
+	        enqueue!(Q, u)
+	        while !isempty(Q)
+	            src = dequeue!(Q)
+	            for vertex in all_neighbors(g, src)
+					if present[vertex]
+		                if label[vertex] == 0
+		                    enqueue!(Q, vertex)
+		                    label[vertex] = u
+							cnt[u] += 1
+		                end
+					end
+	            end
+	        end
+			if cnt[u] > maxcnt
+				maxcnt = cnt[u]
+			end
+		end
+    end
+    return maxcnt
+end
+
 function LCC(g)
     n = nv(g)
     Q = Queue{Int}()
@@ -137,4 +212,12 @@ function correlated_multigraph(g1,g2;correlation="MP")
 		add_edge!(g3, node_map[src(edge)], node_map[dst(edge)])
 	end
 	return [g1;g3]
+end
+
+function attack2present(layers, attack_nodes)
+	presents = [fill(true, nv(layers[1])) for _ in eachindex(layers)]
+	for i in attack_nodes
+		presents[i.layer][i.id] = false
+	end
+	return presents
 end
