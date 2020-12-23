@@ -25,7 +25,7 @@ function effective_multiplex_degree!(w, tempw, g, layers, degs, deg, present, T=
     end
 end
 
-function EMD(layers; num=round(Int,sqrt(nv(layers[1]))), T=10)
+function EMD(layers; num=nv(layers[1]), T=10)
     attack_nodes = @NamedTuple{layer::Int,id::Int}[]
     g = foldl(union, layers)
     deg = degree(g)
