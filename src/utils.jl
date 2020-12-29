@@ -196,7 +196,7 @@ function iscyclic(g)
 	return false
 end
 
-function correlated_multigraph(g1,g2;correlation="MP")
+function correlated_multigraph(g1,g2;correlation="UC")
 	deg1 = degree(g1)
 	deg2 = degree(g2)
 	n = nv(g2)
@@ -205,7 +205,7 @@ function correlated_multigraph(g1,g2;correlation="MP")
 	elseif correlation == "MN"
 		node_map = Dict(zip(sortperm(deg2,rev=true),sortperm(deg1)))
 	else
-		node_map = Dict(zip(rand(1:n,n),rand(1:n,n)))
+		node_map = Dict(zip(shuffle(1:n),shuffle(1:n)))
 	end
 	g3 = SimpleGraph(nv(g2))
 	for edge in edges(g2)

@@ -1,1 +1,6 @@
-/result.png
+*.png
+*.eps
+*.pdf
+*.svg
+*.jld2
+/src/tex/*

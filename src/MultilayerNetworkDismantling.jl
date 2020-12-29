@@ -4,6 +4,7 @@ using LightGraphs
 using DataStructures
 using Base.Iterators
 using StatsBase
+using Random
 
 export
 OAS,

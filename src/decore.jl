@@ -31,8 +31,10 @@ function decore(layers, k=2)
 			end
 		end
 	end
+
 	degmax = last(H)[1]
 	d = isempty(H[(k-1,k-1)]) ? degmax : (k-1,k-1)
+	done = false
 	for t in 1:length(layers)*n
 		i = rand(H[d])
 		delete!(H[d],i)
@@ -45,8 +47,7 @@ function decore(layers, k=2)
 				if presents[l][i.id]
 					degi = max((deg[i.id],degs[l][i.id]), (k-1,k-1))
 					delete!(H[degi],(layer=l,id=i.id))
-					deg[i.id] = newdegi
-					degi = max((deg[i.id],degs[l][i.id]), (k-1,k-1))
+					degi = max((newdegi,degs[l][i.id]), (k-1,k-1))
 					if haskey(H, degi)
 						push!(H[degi], (layer=l,id=i.id))
 					else
@@ -55,11 +56,12 @@ function decore(layers, k=2)
 				end
 			end
 		end
+		deg[i.id] = newdegi
 
 		for j in neighbors(layers[i.layer], i.id)
 			newdegj = union_degree(layers, presents, j)
 
-			if presents[i.layer][j] && deg[j] ≥ k
+			if presents[i.layer][j]
 				degj = max((deg[j],degs[i.layer][j]),(k-1,k-1))
 				delete!(H[degj],(layer=i.layer,id=j))
 				degs[i.layer][j] -= 1
@@ -89,9 +91,13 @@ function decore(layers, k=2)
 		while isempty(H[degmax])
 			delete!(H,degmax)
 			degmax = last(H)[1]
+			if degmax ≤ (k-1,k-1)
+				done = true
+				break
+			end
 		end
+		done && break
 		d = isempty(H[(k-1,k-1)]) ? degmax : (k-1,k-1)
-		degmax < (k,0) && break
 	end
 	attacked_nodes
 end
