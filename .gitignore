@@ -3,4 +3,8 @@
 *.pdf
 *.svg
 *.jld2
+*.txt
+*.net
+*.csv
+*.pptx
 /src/tex/*
