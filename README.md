@@ -23,4 +23,4 @@ layer, source, target
 ```
 julia main.jl toy_multi_net.txt
 ```
-4. In the same directory of `toy_multi_net.txt`, you will get the dismantling set file `toy_multi_net.dismantling_set` with each line represents an attacked layer node in format `layer, id`.
+5. In the same directory of `toy_multi_net.txt`, you will get the dismantling set file `toy_multi_net.dismantling_set` with each line represents an attacked layer node in format `layer, id`.
