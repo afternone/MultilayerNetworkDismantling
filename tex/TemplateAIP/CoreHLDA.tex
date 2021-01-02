@@ -1,0 +1,284 @@
+% ****** Start of file aipsamp.tex ******
+%
+%   This file is part of the AIP files in the AIP distribution for REVTeX 4.
+%   Version 4.1 of REVTeX, October 2009
+%
+%   Copyright (c) 2009 American Institute of Physics.
+%
+%   See the AIP README file for restrictions and more information.
+%
+% TeX'ing this file requires that you have AMS-LaTeX 2.0 installed
+% as well as the rest of the prerequisites for REVTeX 4.1
+% 
+% It also requires running BibTeX. The commands are as follows:
+%
+%  1)  latex  aipsamp
+%  2)  bibtex aipsamp
+%  3)  latex  aipsamp
+%  4)  latex  aipsamp
+%
+% Use this file as a source of example code for your aip document.
+% Use the file aiptemplate.tex as a template for your document.
+\documentclass[%
+ aip,
+ cha,
+% jmp,
+% bmf,
+% sd,
+% rsi,
+ amsmath,amssymb,
+%preprint,%
+ reprint,%
+%author-year,%
+%author-numerical,%
+% Conference Proceedings
+]{revtex4-1}
+
+\usepackage{graphicx}% Include figure files
+\usepackage{dcolumn}% Align table columns on decimal point
+\usepackage{bm}% bold math
+%\usepackage[mathlines]{lineno}% Enable numbering of text and display math
+%\linenumbers\relax % Commence numbering lines
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{mathptmx}
+
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\renewcommand{\algorithmicrequire}{\textbf{Input:}} % Use Input in the format of Algorithm
+\renewcommand{\algorithmicensure}{\textbf{Output:}} % Use Output in the format of Algorithm
+
+\begin{document}
+
+\preprint{AIP/123-QED}
+
+\title{Optimal Dismantling of Multiplex Networks under Layer Node-Based Attack}
+% Force line breaks with \\
+
+\author{Jihui Han}
+\email{hanjihui@zzuli.edu.cn.}
+
+\author{Shaoyang Tang}%
+\affiliation{ 
+College of Computer and Communication Engineering, Zhengzhou University of Light Industry.}%
+
+\author{Yuefeng Shi}
+\email{syf@zzuli.edu.cn.}
+\affiliation{%
+Information Management Center, Zhengzhou University of Light Industry.}%
+
+\date{\today}% It is always \today, today,
+             %  but any date may be explicitly specified
+
+\begin{abstract}
+Network dismantling aims to identify the minimal set of nodes whose removal fragments the network into components of sub-extensive size. The solution of this problem is significant for designing optimal strategies for immunization policies, information spreading, and network attack. Modern systems, such as social networks and critical infrastructure networks, which consist of nodes connected via links of multiple types and can be encapsulated into the framework of multiplex networks. Here we focus on the dismantling problem in multiplex networks under layer node-based attack, and propose an efficient dismantling algorithm. We conduct systematical evaluation on synthetic and real-world multiplex networks, and find that the dismantling effect of our algorithm is significantly superior to existing strategies. We also show how the resistance of a multiplex network is affected by the interlayer degree correlation. Our findings should provide a route for an optimal design of efficient dismantling strategies in multiplex networks.
+
+%we study the dismantling problem for multilayer networks under layer node attack mode. We propose an efficient dismantling algorithm for multilayer networks under layer node attack mode, and report a comprehensive analysis of different dismantling strategies in both real-world and synthetic multilayer networks. We show that our dismantling algorithm outperforms by a large margin existing strategies, and triggers an abrupt collapse of the multilayer network. We also show how the attack resistance of a multilayer network is affected by the interlayer degree correlation. Our findings should provide a route for an optimal design of efficient dismantling strategies.
+
+%The algorithm first recursively removes layer nodes of the highest degree from the 2-core of the aggregated network, then breaks the remaining tree, and finally re-inserts some removed layer nodes that do not increase the size of the largest component.
+%We conduct systematical evaluation on synthetic and real-world multilayer networks, and find that the dismantling effect of our algorithm is significantly superior to existing strategies. Moreover, the proposed method is applicable to large-scale networks with millions of nodes.
+\end{abstract}
+
+\maketitle
+
+\begin{quotation}
+Many systems of interest can be represented by networks of nodes connected by edges. The integrity and functionality of those networks hinge on a small set of pivotal nodes which either maintains the connectivity of networks, or dominates certain dynamical processes in networks. Identifying this optimal set of nodes is one of the most important problems in network science. Considering that networks rarely exist independently, it is desirable to dismantle networks consist of fully or partially interdependent layers. The essential purpose of this work is to find an optimal dismantling strategy in multiplex networks under layer node-based attack.
+
+%we study the dismantling problem for multilayer networks under layer node attack mode. We propose an efficient dismantling algorithm for multilayer networks under layer node attack mode, and report a comprehensive analysis of different dismantling strategies in both real-world and synthetic multilayer networks. We show that our dismantling algorithm outperforms by a large margin existing strategies, and triggers an abrupt collapse of the multilayer network. We also show how the attack resistance of a multilayer network is affected by the interlayer degree correlation. Our findings should provide a route for an optimal design of efficient dismantling strategies.
+
+%Many systems can be represented by networks of nodes connected by edges. In particular, many essential natural, technological, and social systems consist of fully or partially interdependent subsystems, allowing them to be represented by such interdependent or multiplex networks. In addition to enhancing the reliability of some crucial networks, it is also desirable to dismantle networks that are harmful to us, such as disease spreading net- works and terrorist organizations. The essential purpose of this work is to seek an optimal disintegration strategy in multiplex networks
+
+%Many real-world networks consist of a set of nodes connected by more than one type of links, which can be better described by multilayer networks. We propose an efficient dismantling algorithm for multilayer networks under layer node attack mode, and report a comprehensive analysis of different dismantling strategies in both real-world and synthetic multilayer networks. We find that removing a very small fraction of layer nodes according to our algorithm triggers an abrupt collapse of the aggregated network and leaves the network in an inefficient state. We also show how the attack resistance of a multilayer network is affected by the interlayer degree correlation. Our findings should provide a route for an optimal design of efficient dismantling strategies.
+
+%Many systems of interest can be represented by a network of nodes connected by edges. In many circumstances, the existence of a giant component is necessary for the network to fulfill its function. Motivated by the need to understand optimal attack strategies, optimal spread of information, or immunization policies, we study the network dismantling problem (i.e., the search for a minimal set of nodes in which removal leaves the network broken into components of subextensive size). We give the size of the optimal dismantling set for random networks, propose an efficient dismantling algorithm for general networks that outperforms by a large margin existing strategies, and provide various insights about the problem.
+\end{quotation}
+
+\section{\label{sec1}Introduction}
+
+Many nature and society systems boil down to interactions among large numbers of building units of each system, and therefore can be properly described by networks of nodes connected via edges, such as social networks and certain infrastructure networks\cite{newman2018networks,albert2002statistical,boccaletti2006complex}. The functionality of these networks hinges on a small set of pivotal nodes which either maintains the connectivity of networks, or dominates certain dynamical processes in networks\cite{albert2000error,newman2003structure,Tian2017}. Identifying this optimal set of nodes is one of the most important problems in network science, namely network dismantling\cite{Morone2015,Braunstein12368,PhysRevE.94.012305}, which is also known as network disintegration or optimal percolation. This problem has attracted considerable research attention in recent years and shown much potential applications in many areas, such as maximization of marketing in social networks \cite{v011a004,leskovec2007dynamics,10.1145/775047.775057}, optimization of immunization strategies \cite{pastor2001epidemic,pastor2002immunization,PhysRevX.4.021024,newman2002spread,PhysRevLett.101.058701,cohen2003efficient}, and protection of networks under malicious attacks \cite{albert2000error,cohen2001breakdown,latora2005vulnerability}.
+
+%containing the spread of epidemic by immunizing a few hub nodes\cite{pastor2002immunization,PhysRevX.4.021024}, eliminating bacteria by disrupting their molecular structures, blocking rumor spreads by restricting some influencer on social networks, curbing the spread of computer virus by protecting specific servers.
+
+Network dismantling has proven to be a NP-hard problem \cite{Braunstein12368}, which means that it is computationally feasible only for small networks. Therefore existing works instead propose heuristic methods to approximately solve it. Simple heuristic methods select nodes to be included in the dismantling set based on their degree \cite{albert2000error,PhysRevLett.85.5468,cohen2001breakdown}, or some other centrality measures \cite{LU20161}. Recently, the network dismantling problem has been translated into other closely related optimization problems such as optimal percolation \cite{Morone2015}, optimal decycling \cite{Braunstein12368,PhysRevE.94.012305,Zdeborova2016}, message passing \cite{PhysRevX.4.021024}, graph partitioning \cite{PhysRevLett.101.058701,Ren6554}, and explosive percolation \cite{clusella2016immunization}. These new approaches provided some sophisticated yet efficient methods to solve the dismantling problem, and achieved better performance than classical centrality-based approaches.
+
+% Most of these approximation methods select nodes to be included in the dismantling set based on their degree \cite{albert2000error,PhysRevLett.85.5468,cohen2001breakdown}, or some measure of their structural centrality \cite{LU20161}. Recently, many more efficient methods have been proposed to solve the network dismantling problem, such as collective influence algorithm \cite{Morone2015}, explosive percolation algorithm, Min-Sum algorithm, BPD alrogithm, CoreHD algorithm, GND algorithm.
+
+% Explosive percolation is another efficient strategy to fragment the network into subcritical clusters. Recently, some message passing algorithms have been proposed to solve the network dismantling problem. These methods establish connection between network dismantling and network decycling, and generally perform better than centrality-based methods. Inspired by these methods, XXX et al. proposed a simple and fast dismantling algorithm called CoreHD which proceeds by first recursively removing nodes of the highest degree from the 2-core of the network. CoreHD also claims performing better than traditional centrality-based methods. This work is the important basis and motivation of the present work.
+
+Although great progress has been made in the past few years, most of these achievements mainly focus on independent networks that are isolated from each other. However, real-world networks rarely exist independently, and most are coupled with or interact with other networks \cite{Buldyrev2010}, such as the individuals connected through various social relationships, the cities linked by different transportation modes, and the proteins connected by diverse types of interactions. A better description of such systems is in terms of multiplex networks \cite{BOCCALETTI20141,PhysRevX.3.041022,Lee2015,doi:10.1063/1.4953595}, which consist of a set of nodes connected by different types of links. Recent research demonstrated that the coexistence of different interactions in multiplex networks would strongly affect the properties of the systems \cite{PhysRevLett.111.128701,PhysRevE.89.042811}.
+
+Therefore, the optimal dismantling of multiplex networks becomes a very interesting and crucial challenge. Osat et al. \cite{Osat2017} extended various existing dismantling strategies to multiplex networks, finding that ignoring the coexistence of interactions may lead to overestimating the robustness of a system. %multilayer structure of the systems may have serious consequences in the characterization of the true robustness of them.
+Baxter et al. \cite{PhysRevE.98.032307} proposed a simple heuristic strategy named effective multiplex degree for targeted attack on interdependent or multiplex networks that leverages the cascade failure inherent in multiplex networks. Qi et al. \cite{doi:10.1063/1.5078449} introduced a meta-heuristic algorithm based on tabu search to determine the optimal dismantling strategy in general multiplex networks.
+
+However, an important assumption in the above research is that the functionality of multiplex networks is shaped by their giant mutually connected component, which means that a node fails in one layer, its interdependent partners in all other layers also fail. Actually, in some practical situations, the targets that are attacked and thus become invalid may only be the layer nodes \cite{Zhao2016}. For example, in multiplex social networks, even though the users are banned from using one or some social network sites, they can still contact in other ways. Correspondingly, in the multiplex transportation networks, different traffic stations in a city rarely fail at the same time. Qi et al. proposed a meta-heuristic algorithm based on tabu search for optimal dismantling multiplex networks under layer node-based attack. Their algorithm performs well in small-scale multiplex networks, but it is prohibitively slow for large system sizes.
+
+Here we focus on the optimal dismantling problem of multiplex networks under layer node-based attack. We propose an efficient algorithm for finding the optimal dismantling strategy, and compare it with some existing methods on both synthetic and real-world multiplex networks. We also study the impact of interlayer degree correlation on different dismantling strategies.
+
+The rest of this paper is organized as follows. The optimal dismantling problem of multiplex networks is defined in Sec. \ref{sec2}. The proposed algorithm is introduced in Sec. \ref{sec3}. Experiments on synthetic and real-world networks are presented in Sec. \ref{sec4}. Finally, we conclusion in Sec. \ref{sec5}. 
+
+\section{\label{sec2}Optimal dismantling in multiplex networks under layer node-based attack}
+
+We consider a multiplex network composed of $N$ nodes that are connected by unweighted and undirected edges in $M$ layers. It could be represented as $G=(V; E^1, \cdots, E^M)$ where $V$ represents the set of nodes and $E^\alpha$ represents the set of edges connecting these nodes in layer $\alpha$. Each node $v_i$ in $V$ has replicas $\{v_i^1,\cdots,v_i^M\}$ in all layers, and we call these replicas as layer nodes of $v_i$. Connections of layer $\alpha$ are encoded in an adjacency matrix $\mathbf{A}^\alpha$, where $A^\alpha_{ij}=A^\alpha_{ji}=1$ if nodes $i$ and $j$ are connected in layer $\alpha$, otherwise $A^\alpha_{ij}=A^\alpha_{ji}=0$. The degree of a layer node $v_i^\alpha$ is defined as $k_i^\alpha=\sum_j A_{ij}^\alpha$, which is the number of edges adjacent to $v_i$ in layer $\alpha$. Corresponding, the multiplex degree of node $v_i$ is defined as $k_i=\sum_\alpha k_i^\alpha$, which is the total number of edges adjacent to node $v_i$ in all layers. The aggregated network obtained from the superposition of all layers is characterized by the adjacency matrix $\mathbf{A}$, where $A_{ij}=A_{ji}=1$ if nodes $i$ and $j$ are connected in at least one layer of the multiplex network, otherwise $A_{ij}=A_{ji}=0$. The aggregated degree of node $v_i$ is defined as $k_i=\sum_j A_{ij}$, which is the number of edges adjacent to $v_i$ in the aggregated network.
+
+We focus our attention on the layer node-based attack, and suppose that if a layer node is attacked, all edges adjacent to it are removed. We also suppose that removing edges in one layer does not affect the layer nodes and edges in other layers. Considering different layers in a multiplex network complement each other, we use the size of the largest aggregated connected component (LACC, i.e. the largest connected component in the aggregated network) to measure the functionality of the multiplex network. Our goal is to find the minimal set of layer nodes such that, if removed from the network, no connected component with a size larger than the predefined threshold $N_c$ is found in the aggregated network. In this paper we set $N_c=N^{1/2}$ to ensure that all components have non-extensive sizes in a finite network.
+
+\section{\label{sec3}The proposed method}
+Studies have shown that decycling is a very effective method for dismantling single-layer networks \cite{Braunstein12368,PhysRevE.94.012305,Zdeborova2016}. Our goal is to determine the minimal set of layer nodes whose removal can effectively dismantle the aggregated network, therefore we should focus on the 2-core of the aggregated network. Our dismantling algorithm, named CoreHLDA (abbreviation for Core High Layer Degree Adaptive), is composed of three stages as follows.
+
+\begin{enumerate}
+    \item \emph{Decycling.} We first obtain the 2-core of the aggregated network by adaptively removing all leaves. We then find the node with the highest aggregated degree in the remaining 2-core, and remove the one with the highest degree from its corresponding layer nodes. The above steps are repeated iteratively until the remaining aggregated network becomes a forest.
+    \item \emph{Tree breaking.} After breaking all the cycles, some of the tree components may still be larger than the desired threshold $N_c$. To break them into smaller components, we first find the node in the LACC whose removal leaves the smallest LACC as described in Refs.~\onlinecite{Braunstein12368,PhysRevE.94.012305}, and then remove the one with the highest degree from its corresponding layer nodes. This procedure repeats iteratively until the LACC is smaller than $N_c$.
+    \item \emph{Refining.} We refine the dismantling set by reinserting greedily some removed layer nodes that do not increase too much the size of the LACC, as proposed in Refs.~\onlinecite{Braunstein12368,PhysRevE.94.012305}.
+\end{enumerate}
+
+% \begin{figure}
+% \begin{algorithm}[H]
+% \caption{CoreHLDA}
+% \label{alg:CoreHLDA} 
+% \begin{algorithmic}[1] 
+% \Require 
+% A multiplex network, $G(V,E^1,\codts,E^M)$ $G=(V;E^1,\cdots,E^M)$; 
+% \Ensure 
+% Dismantling set, $D$; 
+% \State Initialize: $C\leftarrow core(G), D=\emptyset$
+% \Comment{$core(G)$ returns 2-core of $G$.}
+% \State While $|C|>0$ do
+% Extracting the set of reliable negative and/or positive samples $T_n$ from $U_n$ with help of $P_n$; 
+% \label{code:fram:extract} 
+% \State Training ensemble of classifiers $E$ on $T_n \cup P_n$, with help of data in former batches; 
+% \label{code:fram:trainbase} 
+% \State $E_n=E_{n-1}cup E$; 
+% \label{code:fram:add} 
+% \State Classifying samples in $U_n-T_n$ by $E_n$; 
+% \label{code:fram:classify} 
+% \State Deleting some weak classifiers in $E_n$ so as to keep the capacity of $E_n$; 
+% \label{code:fram:select} \\ 
+% \Return $E_n$; 
+% \end{algorithmic} 
+% \end{algorithm}
+% \end{figure}
+%Removing a layer node in the decycling stage only affect its nearest neighbors. Thus only the degrees of the neighbors and the 2-core need to be updated, which requires $O(Mk)$ operations, where $M$ and $k$ represent the number of layers and the average degree respectively. The number of operations for each node removal in the tree breaking stage scales as $O(M\log N+T)$ where $T$ is the maximal diameter of the forest.
+
+If the multiplex network under consideration has a small number of layers and each layer is a sparse network (i.e., the edge number is of the same order as the node number), then the running time of the CoreHLDA algorithm is proportional to $N\log N$ (see FIG. \ref{fig:runtime_corehlda} for a concrete demonstration). Therefore, this algorithm is applicable to extremely large-scale multiplex networks.
+
+\begin{figure}
+\includegraphics[width=8.5cm]{runtime_CoreHLDA}% Here is how to import EPS art
+\caption{\label{fig:runtime_corehlda} Running time of the CoreHLDA on duplex ER networks of mean degree $\langle k\rangle = 6$ and sizes from $2^{10}$ to $2^{19}$. The solid red circles are simulation results, and the solid blue line is the fitting curve of the form $T = a N\log(N)$ for the CoreHLDA running time $T$, with parameter $a = 4.043\times 10^{-5}$ second.}
+\end{figure}
+
+%If the multiplex network under consideration has a small number of layers, our algorithm has essentially the same time complexity as that of the CoreHD, i.e. its core part runs in linear time over the system size in sparse networks (Figure ), allowing us to easily dismantle multiplex networks with tens of millions of nodes.
+
+To illustrate our algorithm clearly, we present a concrete example. As shown in FIG. \ref{fig:wide:CoreHLDA}, the toy multiplex network consists of five nodes and two layers $A$ and $B$. First, we obtain the 2-core of the aggregated network by adaptively removing the leaf nodes (i.e. the gray layer nodes $v_5^A$ and $v_5^B$ in FIG. \ref{fig:wide:CoreHLDA}a). After removing all leaves, node $v_1$ has the highest aggregated degree in the remaining 2-core, so we remove the layer node $v_1^B$ which has the highest layer degree, as shown in FIG. \ref{fig:wide:CoreHLDA} a→b. Then we recalculate the 2-core of the aggregated network by removing the new leaf nodes $v_4^A$ and $v_4^B$, as shown in FIG. \ref{fig:wide:CoreHLDA}b. In the remaining 2-core, nodes $v_1$, $v_2$ and $v_3$ has the same aggregated degree, so we randomly select one and remove its corresponding layer node (suppose layer node $v_2^A$) which has the highest layer degree. The removal of $v_2^A$ breaks the remaining aggregated network into a forest, as shown in FIG. \ref{fig:wide:CoreHLDA} b→c. To break the forest efficiently, we remove layer nodes $v_3^A$ and $v_4^B$ in turn, as shown in FIG. \ref{fig:wide:CoreHLDA} c→d→e. If the threshold size of LACC is set to 2, the process of tree breaking is now complete. In this example, refining procedure is not required, so the whole process of our algorithm is finished. We obtain the following dismantling set: \{$v_1^B,v_2^A,v_3^A,v_4^B$\}.
+
+\begin{figure*}
+\centering
+\includegraphics[width=15cm]{CoreHLDA_toy_net}% Here is how to import EPS art
+\caption{\label{fig:wide:CoreHLDA}Schematic diagram of the CoreHLDA algorithm applied on a toy multiplex network consists of two layers $A$ and $B$. In each subplot, leaf nodes are shown in gray, nodes in 2-core are shown in blue, and nodes to be removed are shown in red. From step a to e, we obtain the dismantling set \{node 1 in layer $B$, node 2 in layer $A$, node 3 in layer $A$, node 4 in layer $B$\}.}
+\end{figure*}
+
+
+
+\section{\label{sec4} Results}
+
+In this section, we assess the effectiveness of CoreHLDA by comparing with some existing methods on both real-world and synthetic multiplex networks. We compare the minimum fraction of layer nodes need to be removed in order to break the aggregated network into disconnected clusters with size smaller than $N^{1/2}$. The existing dismantling algorithms involved in the comparison are as follows.
+
+\begin{enumerate}
+    \item TS (tabu search)\cite{qi2018optimal}. This method seeks the optimal dismantling set based on tabu search, under the constraint that the fraction of removed nodes is fixed. In our experiments, we set the maximum of iterations $T_{max} = 1000$, the number of candidates $n_{can} = 100$ and the length of the tabu list $L = 50$. Due to the high time complexity of this method, the results on some large networks are not provided.
+    \item CI (collective influence)\cite{Morone2015}. This strategy adaptively removes the layer nodes according to their collective influence strength defined as:
+    $$CI(v_i^\alpha) = \left[k_i^\alpha -1\right]\sum_{j\in \partial Ball(i,l)}\left[k_j^\alpha -1\right],$$ where $\partial Ball(i,l)$ denotes the set formed by all the layer nodes in layer $\alpha$ that are at distance $l$ to node $v_i^\alpha$. We set the ball radius $l=2$ in our experiments.
+    \item EMD (effective multiplex degree)\cite{PhysRevE.98.032307}. In each step, this strategy first calculates the strength of node $v_i$ according to the following iterative formula:
+    $$w_i^{(t+1)}=\sum_{l=1}^M\sum_{j\in N^\alpha}\frac{1}{M}\frac{w_j^{(t)}}{k_j^\alpha},$$
+    where $N^\alpha$ is the set of adjacent neighbors of node $v_i$ in layer $\alpha$, $k_j^\alpha$ is the layer degree of node $v_j$ on layer $\alpha$, and $M$ is the number of layers. We use the multiplex degree $k_i$ as the initial value of the $w_i$ and set the number of iterations to 10. Then it consecutively removes all the layer nodes corresponding to the multiplex node $v_i$ which has the highest strength $w_i$.
+    \item HLDA (high layer degree adaptive)\cite{qi2018optimal}. This strategy adaptively removes the layer nodes with the highest layer degree among all the layer nodes in all layers.
+    \item HMDA (high multiplex degree adaptive)\cite{qi2018optimal}. In each step, this strategy first finds the node with the highest multiplex degree, then removes all the layer nodes corresponding to it consecutively, and finally recalculates the multiplex degree of the remaining nodes.
+\end{enumerate}
+\subsection{Experiments on synthetic multiplex networks}
+We first test different dismantling algorithms on the synthetic multiplex networks composed of two layers generated independently according to the Erdős–Rényi (ER) model and the scale free (SF) model. We consider three types of interlayer degree correlation: uncorrelated (UC), maximally positive (MP), and maximally negative (MN) as described in Refs.~\onlinecite{PhysRevE.89.042811}. The MP correlation means that hub nodes in one layer tend to connect with hub nodes in another layer, while the MN correlation means that hub nodes in one layer tend to connect with low-degree nodes in another layer.
+
+FIG. \ref{fig:wide:ERER} shows the relative size of the LACC as a function of the fraction of layer nodes removed for multiplex networks consisting of two ER layers with different interlayer degree correlations. Each network layer is generated independently according to the ER model with average degree $\langle k\rangle =6$ and size $N=10000$. We see that the CoreHLDA algorithm outperforms the others by a considerable margin: it constructs a much smaller dismantling set for the same network instance. This superiority holds true for duplex ER networks with different interlayer degree correlations. We also notice that, during the CoreHLDA attack process the size of the LACC initially shrinks slowly but decreases suddenly at a certain point. However, the size of the LACC decreases gradually and smoothly during the whole attack process of the other algorithms. FIG. \ref{fig:wide:SFSF} shows the similar results for duplex SF networks consisting of two layers generated independently according to the SF model with average degree $\langle k\rangle = 6$, exponent $\gamma = 3$, and size $N=10000$. We find that the CoreHLDA algorithm still exhibits the best performance in all cases. Due to the heterogeneous degree distributions, the scale-free networks are more vulnerable than the ER networks under target attack. Therefore, the dismantling sets of the duplex SF networks are smaller than those of the duplex ER networks.
+
+FIG. \ref{fig:wide:rhoERER} shows the relative size of the dismantling set as a function of the average degree for duplex ER networks. We find that the CoreHLDA algorithm obtains qualitatively better solutions than the other algorithms, in the sense that its dismantling set is much smaller than those of the other algorithms. For example, to dismantle an uncorrelated duplex ER network of average degree $\langle k\rangle =8$, the CoreHLDA algorithm removes a fraction about 49\% of all the layer nodes, while the other algorithms would need to remove a fraction at least 54\% of all the layer nodes. Moreover, we find that the interlayer degree correlation has a significant impact on the robustness of the duplex ER networks. In general, the interlayer degree correlation (whether MP or MN) will make the network more vulnerable to target attacks (see FIG. \ref{fig:wide:rhoERER}).
+
+To examine the effect of heterogeneity in network degree, we also test different algorithms on multiplex networks consisting of two SF layers with different interlayer degree correlations. Each network layer is generated independently according to the SF model with exponent $\gamma = 3$, and size $N=10000$. As shown in FIG. \ref{fig:wide:rhoSFSF}, we find that CoreHLDA always outperforms the other algorithms in all cases, and the relative effectiveness of the different algorithms is unchanged.
+
+% We find that the two multiplex node-based strategies EMD and HMDA performs significantly worse than the other three layer node-based strategies. The reason may be that they removed many low-degree nodes corresponding to the multiplex node with the highest EMD or multiplex degree. Meanwhile, the 
+
+\begin{figure*}
+\centering
+\includegraphics[width=17cm]{result_ER_ER}% Here is how to import EPS art
+\caption{\label{fig:wide:ERER}Performance of different dismantling algorithms in multiplex ER networks under layer node-based attack. The multiplex networks are composed of two layers generated independently according to the ER model with average degree $\langle k\rangle = 6$ and size $N=10000$. Each curve represents the relative size of the largest connected component in the aggregated network as a function of the fraction of layer nodes removed. In all five methods nodes are removed one by one until the largest connected component smaller than $N^{1/2}$. (a), (b) and (c) present the results for three types of interlayer degree correlation cases: uncorrelated (UC), maximally positive (MP) and maximally negative (MN), respectively.}
+\end{figure*}
+
+
+\begin{figure*}
+\centering
+\includegraphics[width=17cm]{result_SF_SF}% Here is how to import EPS art
+\caption{\label{fig:wide:SFSF}Performance of different dismantling algorithms in multiplex SF networks under layer node-based attack. The multiplex networks are composed of two layers generated independently according to the static SF model with average degree $\langle k\rangle = 6$, exponent $\gamma=3$, and size $N=10000$. Each curve represents the relative size of the largest connected component in the aggregated network as a function of the fraction of layer nodes removed. In all five methods nodes are removed one by one until the largest connected component smaller than $N^{1/2}$. (a), (b) and (c) present the results for three types of interlayer degree correlation cases: uncorrelated (UC), maximally positive (MP) and maximally negative (MN), respectively.}
+\end{figure*}
+
+\begin{figure*}
+\centering
+\includegraphics[width=17cm]{result_rho_ER_ER}% Here is how to import EPS art
+\caption{\label{fig:wide:rhoERER}Performance of different dismantling algorithms in multiplex ER networks under layer node-based attack. The multiplex networks are composed of two layers generated independently according to the ER model with equal mean degree and size $N=10000$. (a-c) represent the two layers are uncorrelated, maximally positive correlated, and maximally negative correlated respectively. Each curve represents the relative size of the dismantling set as a function of the average degree. All results are averaged over 20 independent realizations.}
+\end{figure*}
+
+\begin{figure*}
+\centering
+\includegraphics[width=17cm]{result_rho_SF_SF}% Here is how to import EPS art
+\caption{\label{fig:wide:rhoSFSF}Performance of different dismantling algorithms in multiplex SF networks under layer node-based attack. The multiplex networks are composed of two layers generated independently according to the static scale free model with exponent $\gamma=3$, and size $N=10000$. (a-c) represent the two layers are uncorrelated, maximally positive correlated, and maximally negative correlated respectively. Each curve represents the relative size of the dismantling set as a function of the average degree. All results are averaged over 20 independent realizations.}
+\end{figure*}
+
+\subsection{Experiments on real-world multiplex networks}
+Real-world networks are usually neither completely random nor completely regular, but have complex local and global structures. They are also very different from the model networks in the topological structure and interlayer degree correlation. Therefore, we introduce some real-world multiplex networks for experiments.
+
+\begin{enumerate}
+    \item London transport network\cite{DeDomenico8351}, where nodes are train stations in London and edges encode existing routes between stations. It consists of three layers corresponding to underground lines, overground lines, and DLR.
+    \item European airline network\cite{Cardillo2013}, where nodes are airports and edges encode existing airlines between airports. It consists of layers corresponding to different airlines.
+    \item Caenorhabditis elegans connectome\cite{Chen4723,10.1093/comnet/cnu038}, where the multiplex consists of layers corresponding to different synaptic junctions.
+    \item Drosophila melanogaster genetic interaction network\cite{10.1093/nar/gkj109,DeDomenico2015}, where the multiplex consists of layers corresponding to different types of genetic interactions for organisms.
+\end{enumerate}
+
+Experimental results on these network instances are presented in TABLE \ref{tab:table1}. We report the minimal number of layer nodes we need to remove in order to break the aggregated network into small components with size smaller than $N^{1/2}$. We see that CoreHLDA works excellently for real-world network instances, constructing dismantling sets much smaller than those of other algorithms. In some of the network instances the differences are indeed very remarkable. The TS algorithm performs well on small networks with fewer layers, but is considerably slower than all of the others.
+
+\begin{table*}
+\caption{\label{tab:table1}Comparative results of different dismantling algorithms on a set of real-world multiplex networks. The first to fourth columns list the basic information of the real-world networks, including the network name, number of layers, number of nodes and total number of connections. The fifth to last columns list the sizes of dismantling sets obtained by different algorithms. Each value is the best of 20 independent realizations. Symbol $\times$ in the TS column indicates that the computation is not finished within 12 hours.}
+\begin{ruledtabular}
+\begin{tabular}{cccccccccc}
+ Network & \#Layers & \#Nodes & \#Connections & TS & CI & EMD & HLDA & HMDA & CoreHLDA\\ \hline
+ London Transport & 3 & 369 & 439 & 35 & 55 & 161 & 56 & 131 & 33 \\
+ European Airline & 37 & 450 & 3588 & 4000 & 7822 & 4147 & 263 & 3563 & 227\\
+ Caenorhabditis Elegans & 3 & 279 & 5863 & 296 & 322 & 511 & 325 & 430 & 293\\
+ Drosophila Melanogaster & 7 & 8215 & 43366 & $\times$ & 2656 & 15402 & 2572 & 12840 & 2098\\
+\end{tabular}
+\end{ruledtabular}
+\end{table*}
+
+% \begin{table*}
+% \caption{\label{tab:table1}Comparative run time (in seconds) of different dismantling algorithms on a set of real-world multiplex networks.}
+% \begin{ruledtabular}
+% \begin{tabular}{cccccccccc}
+%  Network & \#Layers & \#Nodes & \#Connections & OAS & CI & EMD & HLDA & HMDA & CoreHLDA\\ \hline
+%  London Transport & 3 & 369 & 439 & & 0.0010586 & 0.0297186 & 0.000182299 & 0.0002347 & 0.0015286 \\
+%  European Airline & 37 & 450 & 3588 & 4000
+%  & 0.047571 & 1.9206 & 0.0105838 & 0.0070456 & 0.370576\\
+%  Caenorhabditis Elegans & 3 & 279 & 5863 & 0.0056897 & 0.0464095 & 0.0007157 & 0.0005764 & 0.0083296\\
+%  Drosophila Melanogaster & 7 & 8215 & 43366 & $\times$ & 0.225374 & 40.0445 & 0.0108401 & 0.0183389 & 5.31376\\
+% \end{tabular}
+% \end{ruledtabular}
+% \end{table*}
+
+\section{\label{sec5}Conclusion}
+In this paper, we propose a simple heuristic algorithm CoreHLDA to optimally dismantle multiplex networks under layer node-based attack. Extensive experiments on both real-world multiplex networks and synthetic multiplex networks show that our algorithm consistently outperforms existing algorithms by giving significantly smaller dismantling sets. Moreover, our algorithm has a near linear time complexity, making it applicable even to extremely large-scale networks.
+
+Here, we only focus on the 2-core of the aggregated network. In fact, CoreHLDA can be generalized naturally to removal of the $k$-core ($k=3,4,\cdots$). We leave this study for future work. Another interesting future direction is to use the information of the interlayer edge overlap to optimize the random removal rule. When multiple layer nodes have the same highest degree, instead of removing one of them randomly, removing those nodes with less edge overlap can more effectively reduce the size of the LACC.
+
+\begin{acknowledgments}
+This work was supported by the National Natural Science Foundation of China (grant number 11947058), and the Key Scientific Research Projects of Higher Education Institutions of Henan Province (grant number 20A120011).
+\end{acknowledgments}
+
+\bibliography{aipsamp}% Produces the bibliography via BibTeX.
+
+\end{document}
+%
+% ****** End of file aipsamp.tex ******

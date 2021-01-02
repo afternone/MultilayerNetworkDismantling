@@ -16,42 +16,84 @@ fc_EMD = zeros(10)
 fc_HLDA = zeros(10,10)
 fc_HMDA = zeros(10,10)
 fc_CoreHLDA = zeros(10,10)
-#for i in 1:10
-    #println(i)
+for i in 1:10
+    println(i)
     for j in eachindex(degs)
-        println(j)
-        g1 = static_scale_free(n, div(n*degs[j],2), 3)
-        g2 = static_scale_free(n, div(n*degs[j],2), 3)
-        layers = MultilayerNetworkDismantling.correlated_multigraph(g1,g2,correlation="MN")
+        g1 = erdos_renyi(n, degs[j]/n)
+        g2 = erdos_renyi(n, degs[j]/n)
+        layers = MultilayerNetworkDismantling.correlated_multigraph(g1,g2,correlation="UC")
 
         # attack_nodes_CI = MultilayerNetworkDismantling.HLCIA(layers, num=15000)
-        attack_nodes_EMD = MultilayerNetworkDismantling.EMD(layers, num=8000)
+        # attack_nodes_EMD = MultilayerNetworkDismantling.EMD(layers, num=8000)
         # attack_nodes_HLDA = MultilayerNetworkDismantling.HLDA(layers)
         # attack_nodes_HMDA = MultilayerNetworkDismantling.HMDA(layers)
-        # attack_nodes_CoreHLDA = MultilayerNetworkDismantling.CoreHLDA(layers)
+        attack_nodes_CoreHLDA = MultilayerNetworkDismantling.CoreHLDA(layers)
 
         # GCC_CI = MultilayerNetworkDismantling.recover_add_nodes(layers, attack_nodes_CI)
-        GCC_EMD = MultilayerNetworkDismantling.recover_add_nodes(layers, attack_nodes_EMD)
+        # GCC_EMD = MultilayerNetworkDismantling.recover_add_nodes(layers, attack_nodes_EMD)
         # GCC_HLDA = MultilayerNetworkDismantling.recover_add_nodes(layers, attack_nodes_HLDA)
         # GCC_HMDA = MultilayerNetworkDismantling.recover_add_nodes(layers, attack_nodes_HMDA)
-        # GCC_CoreHLDA = MultilayerNetworkDismantling.recover_add_nodes(layers, attack_nodes_CoreHLDA)
+        GCC_CoreHLDA = MultilayerNetworkDismantling.recover_add_nodes(layers, attack_nodes_CoreHLDA)
 
         # i_CI = findfirst(x->x≤100, GCC_CI)
-        i_EMD = findfirst(x->x≤100, GCC_EMD)
+        # i_EMD = findfirst(x->x≤100, GCC_EMD)
         # i_HLDA = findfirst(x->x≤100, GCC_HLDA)
         # i_HMDA = findfirst(x->x≤100, GCC_HMDA)
-        # i_CoreHLDA = length(GCC_CoreHLDA)
+        i_CoreHLDA = length(GCC_CoreHLDA)
         
         nsum = sum(nv.(layers))
         # fc_CI[i,j] = i_CI/nsum
-        fc_EMD[j] = i_EMD/nsum
+        # fc_EMD[j] = i_EMD/nsum
         # fc_HLDA[i,j] = i_HLDA/nsum
         # fc_HMDA[i,j] = i_HMDA/nsum
-        # fc_CoreHLDA[i,j] = i_CoreHLDA/nsum
+        fc_CoreHLDA[i,j] = i_CoreHLDA/nsum
     end
-#end
-@save "EMD_SF_MN_SF_k_3_12.jld2" fc_EMD
+end
+@save "CoreHLDA_ER_UC_ER_k_3_12.jld2" fc_CoreHLDA
+## time complexity analysis
+n = [2^i for i in 10:19]
+T = zeros(10,10)
+fc_CoreHLDA = zeros(10,10)
+for i in 1:10
+    for j in eachindex(n)
+        println(i,'\t', j)
+        g1 = erdos_renyi(n[j], 6/n[j])
+        g2 = erdos_renyi(n[j], 6/n[j])
+        layers = MultilayerNetworkDismantling.correlated_multigraph(g1,g2,correlation="UC")
+        T[i,j] = @elapsed attack_nodes_CoreHLDA = MultilayerNetworkDismantling.CoreHLDA(layers)
+        GCC_CoreHLDA = MultilayerNetworkDismantling.recover_add_nodes(layers, attack_nodes_CoreHLDA)
+        i_CoreHLDA = length(GCC_CoreHLDA)
+        nsum = sum(nv.(layers))
+        fc_CoreHLDA[i,j] = i_CoreHLDA/nsum
+    end
+end
+## plot the runtime
+gr(size=(400,300),legend=:bottomleft, foreground_color_legend=nothing, palette=:darkrainbow, thickness_scaling=1, xtickfontsize=10, ytickfontsize=10, xguidefontsize=12, yguidefontsize=12, legendfontsize=10, framestyle=:box, dpi=300, grid=false, minorticks=true)
+styles = filter(s->in(s,Plots.supported_styles()), [:solid, :dash, :dot, :dashdot, :dashdotdot])
+seriescolors = palette(:darktest)
+n = [2^i for i in 10:19]
+x = n.*log(n)
+y = mean(T,dims=1)[:]
+y[10]=y[9]*y[9]/y[8]
+z = mean(fc_CoreHLDA,dims=1)[:]
+@. model(x,p) = p[1] + p[2]*x
+fit = curve_fit(model, x, y, [0.5,0.5])
 
+pxy = plot(x, exp.(model(log.(x),fit.param)),lw=2, linecolor=:blue)
+scatter!(pxy, x, y, xscale=:log10, yscale=:log10, markerstrokewidth=0, markercolor=:red, markersize=6)
+
+scatter!(pxy, legend=nothing)
+xlabel!(pxy, "Network size")
+ylabel!(pxy, "Time (s)")
+
+pxz = scatter(n, z, xaxis=:log10, markerstrokewidth=0, markercolor=:red)
+scatter!(pxz, legend=nothing)
+xlabel!(pxz, "Network size")
+ylabel!(pxz, "Relative size of the dismantling set")
+##
+savefig(pxy, "runtime_CoreHLDA.svg")
+##y_CI
+#@save "CoreHLDA_ER_UC_ER_k_3_12.jld2" fc_CoreHLDA
 ##
 n = 10000 # number of nodes
 k = 6 # average degree
@@ -91,13 +133,14 @@ y_CoreHLDA = GCC_CoreHLDA
 ##
 @save "result_ER_MN_ER.jld2" y_CI y_EMD y_HLDA y_HMDA y_CoreHLDA
 
-## plot relative size of GCC vs fraction of removed nodes
-nsum = sum(nv.(layers))
+## plot relative size of LACC vs fraction of removed nodes
+nsum = 20000
+n = 10000
 gr(size=(400,300),legend=:bottomleft, foreground_color_legend=nothing, palette=:darkrainbow, thickness_scaling=1, xtickfontsize=10, ytickfontsize=10, xguidefontsize=12, yguidefontsize=12, legendfontsize=10, framestyle=:box, dpi=300, grid=false, minorticks=true)
 styles = filter(s->in(s,Plots.supported_styles()), [:solid, :dash, :dot, :dashdot, :dashdotdot])
 seriescolors = palette(:darktest)
 
-@load "result_ER_UC_ER.jld2" y_CI y_EMD y_HLDA y_HMDA y_CoreHLDA
+@load "result_SF_UC_SF.jld2" y_CI y_EMD y_HLDA y_HMDA y_CoreHLDA
 p_UC = plot((1:length(y_CI)) ./ nsum, y_CI./n, line=styles[5], lw=2, label="CI")
 plot!(p_UC, (1:length(y_EMD)) ./ nsum, y_EMD./n, line=styles[4], lw=2, label="EMD")
 plot!(p_UC, (1:length(y_HLDA)) ./ nsum, y_HLDA./n, line=styles[3], lw=2, label="HLDA")
@@ -105,9 +148,9 @@ plot!(p_UC, (1:length(y_HMDA)) ./ nsum, y_HMDA./n, line=styles[2], lw=2, label="
 plot!(p_UC, (1:length(y_CoreHLDA)) ./ nsum, y_CoreHLDA./n, line=styles[1], lw=2, label="CoreHLDA")
 yticks!(p_UC, 0:0.2:1)
 #xlabel!(p_UC, "Fraction of removed nodes")
-ylabel!(p_UC, "Relative size of the GCC")
+ylabel!(p_UC, "Relative size of the LACC")
 
-@load "result_ER_MP_ER.jld2" y_CI y_EMD y_HLDA y_HMDA y_CoreHLDA
+@load "result_SF_MP_SF.jld2" y_CI y_EMD y_HLDA y_HMDA y_CoreHLDA
 p_MP = plot((1:length(y_CI)) ./ nsum, y_CI./n, line=styles[5], lw=2, label="CI")
 plot!(p_MP, (1:length(y_EMD)) ./ nsum, y_EMD./n, line=styles[4], lw=2, label="EMD")
 plot!(p_MP, (1:length(y_HLDA)) ./ nsum, y_HLDA./n, line=styles[3], lw=2, label="HLDA")
@@ -115,10 +158,10 @@ plot!(p_MP, (1:length(y_HMDA)) ./ nsum, y_HMDA./n, line=styles[2], lw=2, label="
 plot!(p_MP, (1:length(y_CoreHLDA)) ./ nsum, y_CoreHLDA./n, line=styles[1], lw=2, label="CoreHLDA")
 plot!(p_MP, legend=nothing)
 yticks!(p_MP, 0:0.2:1)
-xlabel!(p_MP, "Fraction of removed nodes")
+xlabel!(p_MP, "Fraction of layer nodes removed")
 #ylabel!(p_MP, "Relative size of the GCC")
 
-@load "result_ER_MN_ER.jld2" y_CI y_EMD y_HLDA y_HMDA y_CoreHLDA
+@load "result_SF_MN_SF.jld2" y_CI y_EMD y_HLDA y_HMDA y_CoreHLDA
 p_MN = plot((1:length(y_CI)) ./ nsum, y_CI./n, line=styles[5], lw=2, label="CI")
 plot!(p_MN, (1:length(y_EMD)) ./ nsum, y_EMD./n, line=styles[4], lw=2, label="EMD")
 plot!(p_MN, (1:length(y_HLDA)) ./ nsum, y_HLDA./n, line=styles[3], lw=2, label="HLDA")
@@ -129,7 +172,7 @@ yticks!(p_MN, 0:0.2:1)
 xticks!(p_MN, 0:0.1:0.7)
 
 p = plot(p_UC, p_MP, p_MN, layout=(1,3), title=["(a) UC" "(b) MP" "(c) MN"], size=(1000,300), left_margin=20px, right_margin=20px, top_margin=10px, bottom_margin=20px)
-savefig(p, "result_ER_ER.svg")
+savefig(p, "result_SF_SF.svg")
 
 ## correlated multiplex network
 g1 = erdos_renyi(10000,1.5/10000)
@@ -214,8 +257,8 @@ savefig(p, "result_rho_SF_SF.svg")
 ##
 
 
-## experiments on real-world networks
-using DelimitedFiles
+# experiments on real-world networks
+## load London Transport network dataset
 datadir = "C:/Users/hanji/Documents/科研/MultilayerNetworkDataset/London_Multiplex_Transport/Dataset"
 london_trans = readdlm(joinpath(datadir, "london_transport_multiplex.edges"), Int)
 n = maximum(london_trans[:,2:3]) + 1
@@ -225,51 +268,7 @@ for i in 1:size(london_trans,1)
     l, u, v = london_trans[i, 1:3]
     u != v && add_edge!(layers[l], u, v)
 end
-
-attack_nodes_CoreHLDA = MultilayerNetworkDismantling.CoreHLDA(layers)
-attack_nodes_CI = MultilayerNetworkDismantling.HLCIA(layers, num=n*M)
-attack_nodes_EMD = MultilayerNetworkDismantling.EMD(layers, num=n)
-attack_nodes_HLDA = MultilayerNetworkDismantling.HLDA(layers)
-attack_nodes_HMDA = MultilayerNetworkDismantling.HMDA(layers)
-
-
-GCC_CI = MultilayerNetworkDismantling.recover_add_nodes(layers, attack_nodes_CI)
-GCC_EMD = MultilayerNetworkDismantling.recover_add_nodes(layers, attack_nodes_EMD)
-GCC_HLDA = MultilayerNetworkDismantling.recover_add_nodes(layers, attack_nodes_HLDA)
-GCC_HMDA = MultilayerNetworkDismantling.recover_add_nodes(layers, attack_nodes_HMDA)
-GCC_CoreHLDA = MultilayerNetworkDismantling.recover_add_nodes(layers, attack_nodes_CoreHLDA)
-
-i_CI = findfirst(x->x≤sqrt(n), GCC_CI)
-i_EMD = findfirst(x->x<=sqrt(n), GCC_EMD)
-i_HLDA = findfirst(x->x≤sqrt(n), GCC_HLDA)
-i_HMDA = findfirst(x->x≤sqrt(n), GCC_HMDA)
-
-y_CI = GCC_CI[1:i_CI]
-y_EMD = GCC_EMD[1:i_EMD]
-y_HLDA = GCC_HLDA[1:i_HLDA]
-y_HMDA = GCC_HMDA[1:i_HMDA]
-y_CoreHLDA = GCC_CoreHLDA
-
-nsum = sum(nv.(layers))
-gr(size=(400,300),legend=:bottomleft, foreground_color_legend=nothing, palette=:darkrainbow, thickness_scaling=1, xtickfontsize=10, ytickfontsize=10, xguidefontsize=12, yguidefontsize=12, legendfontsize=10, framestyle=:box, dpi=300, grid=false, minorticks=true)
-styles = filter(s->in(s,Plots.supported_styles()), [:solid, :dash, :dot, :dashdot, :dashdotdot])
-seriescolors = palette(:darktest)
-styles = fill(:solid,5)
-
-p = plot((1:length(y_CI)) ./ nsum, y_CI./n, line=styles[5], lw=2, label="CI")
-plot!(p, (1:length(y_EMD)) ./ nsum, y_EMD./n, line=styles[4], lw=2, label="EMD")
-plot!(p, (1:length(y_HLDA)) ./ nsum, y_HLDA./n, line=styles[3], lw=2, label="HLDA")
-plot!(p, (1:length(y_HMDA)) ./ nsum, y_HMDA./n, line=styles[2], lw=2, label="HMDA")
-plot!(p, (1:length(y_CoreHLDA)) ./ nsum, y_CoreHLDA./n, line=styles[1], lw=2, label="CoreHLDA")
-#yticks!(p, 0:0.2:1)
-plot!(p, legend=:topright)
-xlabel!(p, "Fraction of removed nodes")
-ylabel!(p, "Relative size of the GCC")
-savefig(p, "london_trans.svg")
-##
-MultilayerNetworkDismantling.OAS(layers, 71)
-
-## European Airline
+## load European Airline network dataset
 datadir = "C:/Users/hanji/Documents/科研/MultilayerNetworkDataset/air-multi-public-dataset"
 layers = SimpleGraph[]
 n = 450
@@ -286,28 +285,18 @@ for line in readlines(joinpath(datadir, "network.txt"))
         g = SimpleGraph(450)
     end
 end
-
 layers = layers[2:end]
-
-attack_nodes_CoreHLDA = MultilayerNetworkDismantling.decore(layers)
-attack_nodes_CoreHLDA = MultilayerNetworkDismantling.CoreHLDA(layers)
-attack_nodes_CI = MultilayerNetworkDismantling.HLCIA(layers, num=n*M)
-attack_nodes_EMD = MultilayerNetworkDismantling.EMD(layers, num=n)
-attack_nodes_HLDA = MultilayerNetworkDismantling.HLDA(layers)
-attack_nodes_HMDA = MultilayerNetworkDismantling.HMDA(layers)
-
-
-GCC_CI = MultilayerNetworkDismantling.recover_add_nodes(layers, attack_nodes_CI)
-GCC_EMD = MultilayerNetworkDismantling.recover_add_nodes(layers, attack_nodes_EMD)
-GCC_HLDA = MultilayerNetworkDismantling.recover_add_nodes(layers, attack_nodes_HLDA)
-GCC_HMDA = MultilayerNetworkDismantling.recover_add_nodes(layers, attack_nodes_HMDA)
-GCC_CoreHLDA = MultilayerNetworkDismantling.recover_add_nodes(layers, attack_nodes_CoreHLDA)
-
-i_CI = findfirst(x->x≤sqrt(n), GCC_CI)/n/M
-i_EMD = findfirst(x->x<=sqrt(n), GCC_EMD)/n/M
-i_HLDA = findfirst(x->x≤sqrt(n), GCC_HLDA)/n/M
-i_HMDA = findfirst(x->x≤sqrt(n), GCC_HMDA)/n/M
-
+## Caenorhabditis Elegans
+using DelimitedFiles
+datadir = "C:/Users/hanji/Documents/科研/MultilayerNetworkDataset/CElegans_Multiplex_Neuronal/Dataset"
+celegans_genetic = readdlm(joinpath(datadir, "celegans_connectome_multiplex.edges"), Int)
+n = maximum(celegans_genetic[:,2:3])
+M = length(unique(celegans_genetic[:,1]))
+layers = [SimpleGraph(n) for _ in 1:M]
+for i in 1:size(celegans_genetic,1)
+    l, u, v = celegans_genetic[i, 1:3]
+    u != v && add_edge!(layers[l], u, v)
+end
 ## Drosophila Melanogaster
 datadir = "C:/Users/hanji/Documents/科研/MultilayerNetworkDataset/Drosophila_Multiplex_Genetic/Dataset"
 london_trans = readdlm(joinpath(datadir, "drosophila_genetic_multiplex.edges"), Int)
@@ -320,51 +309,89 @@ for i in 1:size(london_trans,1)
         add_edge!(layers[l], u, v)
     end
 end
+## Run different dismantling algorithms
+T = zeros(Int, 10, 5)
+X = zeros(10, 5)
+for i in 1:10
+    println(i)
+    X[i,1] = @elapsed attack_nodes_CI = MultilayerNetworkDismantling.HLCIA(layers, num=n*M)
+    X[i,2] = @elapsed attack_nodes_EMD = MultilayerNetworkDismantling.EMD(layers, num=n)
+    X[i,3] = @elapsed attack_nodes_HLDA = MultilayerNetworkDismantling.HLDA(layers)
+    X[i,4] = @elapsed attack_nodes_HMDA = MultilayerNetworkDismantling.HMDA(layers)
+    X[i,5] = @elapsed attack_nodes_CoreHLDA = MultilayerNetworkDismantling.CoreHLDA(layers)
 
-attack_nodes_CoreHLDA = MultilayerNetworkDismantling.CoreHLDA(layers)
-attack_nodes_CI = MultilayerNetworkDismantling.HLCIA(layers, num=n*M)
-attack_nodes_EMD = MultilayerNetworkDismantling.EMD(layers, num=n)
-attack_nodes_HLDA = MultilayerNetworkDismantling.HLDA(layers)
-attack_nodes_HMDA = MultilayerNetworkDismantling.HMDA(layers)
+    GCC_CI = MultilayerNetworkDismantling.recover_add_nodes(layers, attack_nodes_CI)
+    GCC_EMD = MultilayerNetworkDismantling.recover_add_nodes(layers, attack_nodes_EMD)
+    GCC_HLDA = MultilayerNetworkDismantling.recover_add_nodes(layers, attack_nodes_HLDA)
+    GCC_HMDA = MultilayerNetworkDismantling.recover_add_nodes(layers, attack_nodes_HMDA)
+    GCC_CoreHLDA = MultilayerNetworkDismantling.recover_add_nodes(layers, attack_nodes_CoreHLDA)
 
+    i_CI = findfirst(x->x≤sqrt(n), GCC_CI)
+    i_EMD = findfirst(x->x<=sqrt(n), GCC_EMD)
+    i_HLDA = findfirst(x->x≤sqrt(n), GCC_HLDA)
+    i_HMDA = findfirst(x->x≤sqrt(n), GCC_HMDA)
 
-GCC_CI = MultilayerNetworkDismantling.recover_add_nodes(layers, attack_nodes_CI)
-GCC_EMD = MultilayerNetworkDismantling.recover_add_nodes(layers, attack_nodes_EMD)
-GCC_HLDA = MultilayerNetworkDismantling.recover_add_nodes(layers, attack_nodes_HLDA)
-GCC_HMDA = MultilayerNetworkDismantling.recover_add_nodes(layers, attack_nodes_HMDA)
-GCC_CoreHLDA = MultilayerNetworkDismantling.recover_add_nodes(layers, attack_nodes_CoreHLDA)
-
-i_CI = findfirst(x->x≤sqrt(n), GCC_CI)/n/M
-i_EMD = findfirst(x->x<=sqrt(n), GCC_EMD)/n/M
-i_HLDA = findfirst(x->x≤sqrt(n), GCC_HLDA)/n/M
-i_HMDA = findfirst(x->x≤sqrt(n), GCC_HMDA)/n/M
-
-## Caenorhabditis Elegans
-using DelimitedFiles
-datadir = "C:/Users/hanji/Documents/科研/MultilayerNetworkDataset/CElegans_Multiplex_Neuronal/Dataset"
-celegans_genetic = readdlm(joinpath(datadir, "celegans_connectome_multiplex.edges"), Int)
-n = maximum(celegans_genetic[:,2:3])
-M = length(unique(celegans_genetic[:,1]))
-layers = [SimpleGraph(n) for _ in 1:M]
-for i in 1:size(celegans_genetic,1)
-    l, u, v = celegans_genetic[i, 1:3]
-    u != v && add_edge!(layers[l], u, v)
+    T[i,1] = i_CI
+    T[i,2] = i_EMD
+    T[i,3] = i_HLDA
+    T[i,4] = i_HMDA
+    T[i,5] = length(GCC_CoreHLDA)
 end
 
-attack_nodes_CoreHLDA = MultilayerNetworkDismantling.decore(layers)
-attack_nodes_CI = MultilayerNetworkDismantling.HLCIA(layers, num=n*M)
-attack_nodes_EMD = MultilayerNetworkDismantling.EMD(layers, num=n)
-attack_nodes_HLDA = MultilayerNetworkDismantling.HLDA(layers)
-attack_nodes_HMDA = MultilayerNetworkDismantling.HMDA(layers)
+y_CI = GCC_CI[1:i_CI]
+y_EMD = GCC_EMD[1:i_EMD]
+y_HLDA = GCC_HLDA[1:i_HLDA]
+y_HMDA = GCC_HMDA[1:i_HMDA]
+y_CoreHLDA = GCC_CoreHLDA
+##
+g_CI = MultilayerNetworkDismantling.merge_layer(layers, attack_nodes_CI[1:i_CI])
+g_EMD = MultilayerNetworkDismantling.merge_layer(layers, attack_nodes_EMD[1:i_EMD])
+g_HLDA = MultilayerNetworkDismantling.merge_layer(layers, attack_nodes_HLDA[1:i_HLDA])
+g_HMDA = MultilayerNetworkDismantling.merge_layer(layers, attack_nodes_HMDA[1:i_HMDA])
+g_CoreHLDA = MultilayerNetworkDismantling.merge_layer(layers, attack_nodes_CoreHLDA)
+@save "LondonTransGraphAfterAttack.jld2" g_CI g_EMD g_HLDA g_HMDA g_CoreHLDA
+## export graph after attack to gephi format
+gcc_index = findmax(length.(connected_components(g_CoreHLDA)))
+gcc_nodes = Set(connected_components(g_CoreHLDA)[gcc_index[2]])
 
+open("LondonTransGraphAfterAttack.txt","w") do f
+    for edge in edges(g_CoreHLDA)
+        if src(edge) ∈ gcc_nodes || dst(edge) ∈ gcc_nodes
+            println(f, src(edge), '\t', dst(edge), '\t', 1)
+        else
+            println(f, src(edge), '\t', dst(edge), '\t', 0)
+        end
+    end
+end
+## Plot the result
+nsum = sum(nv.(layers))
+gr(size=(400,300),legend=:bottomleft, foreground_color_legend=nothing, palette=:darkrainbow, thickness_scaling=1, xtickfontsize=10, ytickfontsize=10, xguidefontsize=12, yguidefontsize=12, legendfontsize=10, framestyle=:box, dpi=300, grid=false, minorticks=true)
+styles = filter(s->in(s,Plots.supported_styles()), [:solid, :dash, :dot, :dashdot, :dashdotdot])
+seriescolors = palette(:darktest)
+styles = fill(:solid,5)
 
-GCC_CI = MultilayerNetworkDismantling.recover_add_nodes(layers, attack_nodes_CI)
-GCC_EMD = MultilayerNetworkDismantling.recover_add_nodes(layers, attack_nodes_EMD)
-GCC_HLDA = MultilayerNetworkDismantling.recover_add_nodes(layers, attack_nodes_HLDA)
-GCC_HMDA = MultilayerNetworkDismantling.recover_add_nodes(layers, attack_nodes_HMDA)
-GCC_CoreHLDA = MultilayerNetworkDismantling.recover_add_nodes(layers, attack_nodes_CoreHLDA)
+p = plot((1:length(y_CI)) ./ nsum, y_CI./n, line=styles[5], lw=2, label="CI")
+plot!(p, (1:length(y_EMD)) ./ nsum, y_EMD./n, line=styles[4], lw=2, label="EMD")
+plot!(p, (1:length(y_HLDA)) ./ nsum, y_HLDA./n, line=styles[3], lw=2, label="HLDA")
+plot!(p, (1:length(y_HMDA)) ./ nsum, y_HMDA./n, line=styles[2], lw=2, label="HMDA")
+plot!(p, (1:length(y_CoreHLDA)) ./ nsum, y_CoreHLDA./n, line=styles[1], lw=2, label="CoreHLDA")
+#scatter!(p, nc./nsum, mean(GCC_TS,dims=1)[:]./369, markershape=:cross, lw=0,markdersize=2, label="TS")
+#yticks!(p, 0:0.2:1)
+plot!(p, legend=:bottom)
+#xlims!(0,0.1)
+xlabel!(p, "Fraction of removed layer nodes")
+ylabel!(p, "Relative size of the LACC")
+## save the plot
+savefig(p, "DrosophilaMelanogaster.svg")
+## Tabu Search based algorithm
+nc = 33:33:330
+GCC_TS = zeros(Int, 20, length(nc))
+for i in eachindex(nc)
+    for j in 1:20
+        println(i, '\t', j)
+        GCC_TS[j,i] = MultilayerNetworkDismantling.OAS(layers, nc[i])[2]
+    end
+end
+@save "TS_CaenorhabditisElegans_results.jld2" GCC_TS
 
-i_CI = findfirst(x->x≤sqrt(n), GCC_CI)/n/M
-i_EMD = findfirst(x->x<=sqrt(n), GCC_EMD)/n/M
-i_HLDA = findfirst(x->x≤sqrt(n), GCC_HLDA)/n/M
-i_HMDA = findfirst(x->x≤sqrt(n), GCC_HMDA)/n/M
+Cstar, Sbest = MultilayerNetworkDismantling.OAS(layers, 3000)

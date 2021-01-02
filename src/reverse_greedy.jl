@@ -77,5 +77,5 @@ function reverse_greedy!(layers, threshold, attack_nodes)
 		presents[ibest.layer][ibest.id] = true
 		present[ibest.id] = true
 	end 
-	reinsert_nodes, presents
+	reinsert_nodes
 end

@@ -20,7 +20,8 @@ CoreHLDA,
 decore,
 tree_break,
 reverse_greedy!,
-recover_add_nodes
+recover_add_nodes,
+mymean
 
 include("decore.jl")
 include("tree_break.jl")

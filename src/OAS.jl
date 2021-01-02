@@ -49,6 +49,7 @@ function OAS(layers, n, L=10, nc=100, maxiter=1000)
             continue
         end
         if Snow < Sbest
+            println(Sbest)
             Cstar[node1[1]][node1[2]], Cstar[node2[1]][node2[2]] = Cstar[node2[1]][node2[2]], Cstar[node1[1]][node1[2]]
             Sbest = Snow
             iter = 0

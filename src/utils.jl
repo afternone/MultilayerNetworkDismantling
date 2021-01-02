@@ -221,3 +221,28 @@ function attack2present(layers, attack_nodes)
 	end
 	return presents
 end
+
+function mymean(x,y)
+    lx = length(x)
+    ly = length(y)
+    z = zeros(max(lx,ly))
+    if lx < ly
+        for i in eachindex(z)
+            if i <= lx
+                z[i] = (x[i]+y[i])/2
+            else
+                z[i] = y[i]
+            end
+        end
+        return z
+    else
+        for i in eachindex(z)
+            if i <= ly
+                z[i] = (x[i]+y[i])/2
+            else
+                z[i] = x[i]
+            end
+        end
+        return z
+    end
+end
