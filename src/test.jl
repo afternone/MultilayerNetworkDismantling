@@ -10,6 +10,50 @@ using DelimitedFiles
 include("MultilayerNetworkDismantling.jl")
 ##
 n = 10000
+k = 3
+g1 = erdos_renyi(n,k/n)
+g2 = erdos_renyi(n,k/n)
+layers = MultilayerNetworkDismantling.correlated_multigraph(g1,g2,correlation="UC")
+##
+g1 = barabasi_albert(n,div(k,2))
+g2 = barabasi_albert(n,div(k,2))
+layers = MultilayerNetworkDismantling.correlated_multigraph(g1,g2,correlation="UC")
+##
+attack_nodes_HLD = MultilayerNetworkDismantling.HLD(layers)
+attack_nodes_HLDA = MultilayerNetworkDismantling.HLDA(layers)
+attack_nodes_HALDA = MultilayerNetworkDismantling.HALDA(layers)
+attack_nodes_HLCIA = MultilayerNetworkDismantling.HLCIA(layers)
+attack_nodes_HACILDA = MultilayerNetworkDismantling.HACILDA(layers)
+attack_nodes_CoreHLDA = MultilayerNetworkDismantling.CoreHLDA(layers)
+##
+GCC_HLD = MultilayerNetworkDismantling.recover_add_nodes(layers, attack_nodes_HLD)
+GCC_HLDA = MultilayerNetworkDismantling.recover_add_nodes(layers, attack_nodes_HLDA)
+GCC_HALDA = MultilayerNetworkDismantling.recover_add_nodes(layers, attack_nodes_HALDA)
+GCC_HLCIA = MultilayerNetworkDismantling.recover_add_nodes(layers, attack_nodes_HLCIA)
+GCC_HACILDA = MultilayerNetworkDismantling.recover_add_nodes(layers, attack_nodes_HACILDA)
+GCC_CoreHLDA = MultilayerNetworkDismantling.recover_add_nodes(layers, attack_nodes_CoreHLDA)
+##
+i_HLD = findfirst(x->x≤100, GCC_HLD)
+i_HLDA = findfirst(x->x≤100, GCC_HLDA)
+i_HALDA = findfirst(x->x≤100, GCC_HALDA)
+i_HLCIA = findfirst(x->x≤100, GCC_HLCIA)
+i_HACILDA = findfirst(x->x≤100, GCC_HACILDA)
+y_HLD = GCC_HLD[1:i_HLD]
+y_HLDA = GCC_HLDA[1:i_HLDA]
+y_HALDA = GCC_HALDA[1:i_HALDA]
+y_HLCIA = GCC_HLCIA[1:i_HLCIA]
+y_HACILDA = GCC_HACILDA[1:i_HACILDA]
+y_CoreHLDA = GCC_CoreHLDA
+
+p = plot((1:length(y_HLDA))./20000, y_HLDA./10000, label="HLDA")
+plot!(p, (1:length(y_HLD))./20000, y_HLD./10000, label="HLD")
+plot!(p, (1:length(y_HALDA))./20000, y_HALDA./10000, label="HALDA")
+plot!(p, (1:length(y_HLCIA))./20000, y_HLCIA./10000, label="HLCIA")
+plot!(p, (1:length(y_HACILDA))./20000, y_HACILDA./10000, label="HACILDA")
+plot!(p, (1:length(y_CoreHLDA))./20000, y_CoreHLDA./10000, label="CoreHLDA")
+plot!(p, legend=:bottomleft)
+##
+n = 10000
 degs = 3:12
 fc_CI = zeros(10,10)
 fc_EMD = zeros(10)

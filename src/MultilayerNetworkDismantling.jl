@@ -12,9 +12,11 @@ LCC,
 EMD,
 HLD,
 HLDA,
+HALDA,
 HMD,
 HMDA,
 HLCIA,
+HACILDA,
 HMCIA,
 CoreHLDA,
 decore,
@@ -31,9 +33,11 @@ include("OAS.jl")
 include("EMD.jl")
 include("HLD.jl")
 include("HLDA.jl")
+include("HALDA.jl")
 include("HMD.jl")
 include("HMDA.jl")
 include("HLCIA.jl")
+include("HACILDA.jl")
 include("HMCIA.jl")
 include("utils.jl")
 

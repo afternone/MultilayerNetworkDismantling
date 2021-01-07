@@ -41,7 +41,7 @@ function frontier_scope!(g, u, scope, bfsqueue, is_visited, present)
 	return startIt, endIt-1
 end
 
-function HLCIA(layers; scope=1, num=round(Int,sqrt(nv(layers[1]))))
+function HLCIA(layers; scope=1, num=sum(nv.(layers)))
     g = foldl(union, layers)
 	n = nv(g)
     attack_nodes = @NamedTuple{layer::Int,id::Int}[]
