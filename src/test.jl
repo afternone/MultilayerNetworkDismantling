@@ -21,36 +21,37 @@ layers = MultilayerNetworkDismantling.correlated_multigraph(g1,g2,correlation="U
 ##
 attack_nodes_HLD = MultilayerNetworkDismantling.HLD(layers)
 attack_nodes_HLDA = MultilayerNetworkDismantling.HLDA(layers)
-attack_nodes_HALDA = MultilayerNetworkDismantling.HALDA(layers)
 attack_nodes_HLCIA = MultilayerNetworkDismantling.HLCIA(layers)
+attack_nodes_HALDA = MultilayerNetworkDismantling.HALDA(layers)
 attack_nodes_HACILDA = MultilayerNetworkDismantling.HACILDA(layers)
-attack_nodes_CoreHLDA = MultilayerNetworkDismantling.CoreHLDA(layers)
+#attack_nodes_CoreHLDA = MultilayerNetworkDismantling.CoreHLDA(layers)
 ##
 GCC_HLD = MultilayerNetworkDismantling.recover_add_nodes(layers, attack_nodes_HLD)
 GCC_HLDA = MultilayerNetworkDismantling.recover_add_nodes(layers, attack_nodes_HLDA)
-GCC_HALDA = MultilayerNetworkDismantling.recover_add_nodes(layers, attack_nodes_HALDA)
 GCC_HLCIA = MultilayerNetworkDismantling.recover_add_nodes(layers, attack_nodes_HLCIA)
+GCC_HALDA = MultilayerNetworkDismantling.recover_add_nodes(layers, attack_nodes_HALDA)
 GCC_HACILDA = MultilayerNetworkDismantling.recover_add_nodes(layers, attack_nodes_HACILDA)
-GCC_CoreHLDA = MultilayerNetworkDismantling.recover_add_nodes(layers, attack_nodes_CoreHLDA)
+#GCC_CoreHLDA = MultilayerNetworkDismantling.recover_add_nodes(layers, attack_nodes_CoreHLDA)
 ##
 i_HLD = findfirst(x->x≤100, GCC_HLD)
 i_HLDA = findfirst(x->x≤100, GCC_HLDA)
-i_HALDA = findfirst(x->x≤100, GCC_HALDA)
 i_HLCIA = findfirst(x->x≤100, GCC_HLCIA)
+i_HALDA = findfirst(x->x≤100, GCC_HALDA)
 i_HACILDA = findfirst(x->x≤100, GCC_HACILDA)
+
 y_HLD = GCC_HLD[1:i_HLD]
 y_HLDA = GCC_HLDA[1:i_HLDA]
-y_HALDA = GCC_HALDA[1:i_HALDA]
 y_HLCIA = GCC_HLCIA[1:i_HLCIA]
+y_HALDA = GCC_HALDA[1:i_HALDA]
 y_HACILDA = GCC_HACILDA[1:i_HACILDA]
-y_CoreHLDA = GCC_CoreHLDA
+#y_CoreHLDA = GCC_CoreHLDA
 
-p = plot((1:length(y_HLDA))./20000, y_HLDA./10000, label="HLDA")
-plot!(p, (1:length(y_HLD))./20000, y_HLD./10000, label="HLD")
-plot!(p, (1:length(y_HALDA))./20000, y_HALDA./10000, label="HALDA")
+p = plot((1:length(y_HLD))./20000, y_HLD./10000, label="HLD")
+plot!(p, (1:length(y_HLDA))./20000, y_HLDA./10000, label="HLDA")
 plot!(p, (1:length(y_HLCIA))./20000, y_HLCIA./10000, label="HLCIA")
+plot!(p, (1:length(y_HALDA))./20000, y_HALDA./10000, label="HALDA")
 plot!(p, (1:length(y_HACILDA))./20000, y_HACILDA./10000, label="HACILDA")
-plot!(p, (1:length(y_CoreHLDA))./20000, y_CoreHLDA./10000, label="CoreHLDA")
+#plot!(p, (1:length(y_CoreHLDA))./20000, y_CoreHLDA./10000, label="CoreHLDA")
 plot!(p, legend=:bottomleft)
 ##
 n = 10000
@@ -118,7 +119,7 @@ seriescolors = palette(:darktest)
 n = [2^i for i in 10:19]
 x = n.*log(n)
 y = mean(T,dims=1)[:]
-y[10]=y[9]*y[9]/y[8]
+
 z = mean(fc_CoreHLDA,dims=1)[:]
 @. model(x,p) = p[1] + p[2]*x
 fit = curve_fit(model, x, y, [0.5,0.5])
