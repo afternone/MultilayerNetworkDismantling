@@ -196,6 +196,26 @@ function iscyclic(g)
 	return false
 end
 
+function relabel(g, r)
+	index = shuffle(vertices(g))
+	num = round(Int, r*nv(g))
+	if num < 1
+		node_map = Dict(zip(index,index))
+	elseif num >= nv(g)
+		index1 = shuffle(index)
+		node_map = Dict(zip(index,index1))
+	else
+		subindex = shuffle(index[1:num])
+		index1 = vcat(subindex, index[num+1:end])
+		node_map = Dict(zip(index,index1))
+	end
+	h = SimpleGraph(nv(g))
+	for edge in edges(g)
+		add_edge!(h, node_map[src(edge)], node_map[dst(edge)])
+	end
+	return [g;h]
+end
+
 function correlated_multigraph(g1,g2;correlation="UC")
 	deg1 = degree(g1)
 	deg2 = degree(g2)
